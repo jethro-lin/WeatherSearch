@@ -42,19 +42,6 @@ namespace WeatherSearchDLL
         public CName Name;
     }
 
-    public class Info
-    {
-        public string Time;
-        public string C_T;
-        public string C_AT;
-        public string F_T;
-        public string F_AT;
-        public string RH;
-        public string Rain;
-        public string Sunrise;
-        public string Sunset;
-    }
-
     public class Scenery
     {
         public string TypeID;

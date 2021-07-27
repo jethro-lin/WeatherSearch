@@ -10,15 +10,13 @@ using System.Windows.Forms;
 using HtmlAgilityPack;
 using System.IO;
 using System.Net;
-using Newtonsoft.Json;
+using WeatherSearchDLL;
 
 namespace WindowsFormsApp1
 {
     public partial class WeatherSearch : Form
     {
-        public List<Country> countries;
-        public List<NatScenic> nation_scenic;
-        public List<Town> towns;
+        private WeatherSearchDLL.WeatherSearchDLL weather_search;
 
         private string GetIPAddress()
         {
@@ -74,228 +72,78 @@ namespace WindowsFormsApp1
             }
         }
 
-        private string GetCountryID()
-        {
-            string id = "";
-            if (this.comboBox_country.SelectedItem != null)
-            {
-                foreach (Country c in countries)
-                {
-                    if (c.Name.C == this.comboBox_country.SelectedItem.ToString())
-                    {
-                        id = c.ID;
-                        break;
-                    }
-                }
-            }
-            return id;
-        }
-
         public WeatherSearch()
         {
             InitializeComponent();
+            weather_search = new WeatherSearchDLL.WeatherSearchDLL();
 
-            this.comboBox_type.Items.Add(new Type("鄉鎮市區", "Town"));
-            this.comboBox_type.Items.Add(new Type("海水浴場", "Beach"));
-            this.comboBox_type.Items.Add(new Type("主要港口", "Port"));
-            this.comboBox_type.Items.Add(new Type("休閒漁港", "Harbors"));
-            this.comboBox_type.Items.Add(new Type("海釣", "Fishing"));
-            this.comboBox_type.Items.Add(new Type("單車", "Biking"));
-            this.comboBox_type.Items.Add(new Type("登山", "Mountain"));
-            this.comboBox_type.Items.Add(new Type("觀星", "StarView"));
-            this.comboBox_type.Items.Add(new Type("棒球場", "Ballpark"));
-            this.comboBox_type.Items.Add(new Type("國家公園", "NatPark"));
-            this.comboBox_type.Items.Add(new Type("國家風景區", "NatScenic"));
-            this.comboBox_type.Items.Add(new Type("國家森林遊樂區", "NatForest"));
-            this.comboBox_type.Items.Add(new Type("農場旅遊", "Farm"));
-            this.comboBox_type.Items.Add(new Type("主要水庫", "Reservoir"));
-            this.comboBox_type.Items.Add(new Type("浮潛", "Snorkeling"));
-            this.comboBox_type.Items.Add(new Type("衝浪", "Surfing"));
-
-            string j = GetJsonString("https://www.cwb.gov.tw/Data/js/info/Info_County.js");
-            countries = JsonConvert.DeserializeObject<List<Country>>(j);
-            foreach (Country c in countries)
+            string[] types = weather_search.GetTypeList();
+            foreach (string type in types)
             {
-                this.comboBox_country.Items.Add(c.Name.C);
+                this.comboBox_type.Items.Add(type);
+            }
+
+            string[] countries = weather_search.GetCountry(WeatherSearchDLL.WeatherSearchDLL.eInfoType.Town);
+            foreach (string c in countries)
+            {
+                this.comboBox_country.Items.Add(c);
             }
 
             this.comboBox_type.SelectedIndex = 0;
-            
+
             /// *** 透過當前IP取得當前位置
             string ip = GetIPAddress();
             string country = GetUserCountryByIp(ip);
-            foreach (Country c in countries)
-            {
-                if (country != "" && c.Name.E.Contains(country))
-                {
-                    this.comboBox_country.SelectedItem = c.Name.C;
-                    break;
-                }
-            }
+            this.comboBox_country.SelectedItem = weather_search.GetCountryByEnglish(country);
         }
 
         private void comboBox_type_SelectedIndexChanged(object sender, EventArgs e)
         {
-            string id = GetCountryID();
-            int country_id = 0;
-            
-            Type t = (Type)this.comboBox_type.SelectedItem;
+            WeatherSearchDLL.WeatherSearchDLL.eInfoType type = (WeatherSearchDLL.WeatherSearchDLL.eInfoType)this.comboBox_type.SelectedIndex;
+            string country_name = (this.comboBox_country.SelectedItem == null) ? "" : this.comboBox_country.SelectedItem.ToString();
 
-            string j = GetJsonString("https://www.cwb.gov.tw/Data/js/info/Info_" + t.link + ".js");
-
+            string[] countries = weather_search.GetCountry(type);
             this.comboBox_country.Items.Clear();
-            if (this.comboBox_type.SelectedIndex == 0)
+            foreach (string c in countries)
             {
-                dynamic stuff = JsonConvert.DeserializeObject(j);
-                foreach (Country c in countries)
-                {
-                    foreach (dynamic item in stuff)
-                    {
-                        if (c.ID == item.Path.ToString())
-                        {
-                            this.comboBox_country.Items.Add(c.Name.C);
-                            if (c.ID == id)
-                                country_id = this.comboBox_country.Items.Count - 1;
-                            break;
-                        }
-                    }
-                }
+                this.comboBox_country.Items.Add(c);
             }
-            else
-            {
-                nation_scenic = JsonConvert.DeserializeObject<List<NatScenic>>(j);
-                foreach (Country c in countries)
-                {
-                    foreach (NatScenic n in nation_scenic)
-                    {
-                        if (n.CID == c.ID)
-                        {
-                            this.comboBox_country.Items.Add(c.Name.C);
-                            if (c.ID == id)
-                                country_id = this.comboBox_country.Items.Count - 1;
-                            break;
-                        }
-                    }
-                }
-            }
-            this.comboBox_country.SelectedIndex = country_id;
+
+            this.comboBox_country.SelectedItem = country_name;
+            if (this.comboBox_country.SelectedIndex == -1)
+                this.comboBox_country.SelectedIndex = 0;
         }
 
         private void comboBox_country_SelectedIndexChanged(object sender, EventArgs e)
         {
-            Type t = (Type)this.comboBox_type.SelectedItem;
-            string j = GetJsonString("https://www.cwb.gov.tw/Data/js/info/Info_" + t.link + ".js");
-            string id = GetCountryID();
+            WeatherSearchDLL.WeatherSearchDLL.eInfoType type = (WeatherSearchDLL.WeatherSearchDLL.eInfoType)this.comboBox_type.SelectedIndex;
+            string country_name = this.comboBox_country.SelectedItem.ToString();
 
+            string[] locations = weather_search.GetLocation(type, country_name);
             this.comboBox_town.Items.Clear();
-
-            if (this.comboBox_type.SelectedIndex == 0)
+            foreach (string l in locations)
             {
-                dynamic stuff = JsonConvert.DeserializeObject(j);
-                foreach (dynamic item in stuff)
-                {
-                    if (id == item.Path.ToString())
-                    {
-                        towns = JsonConvert.DeserializeObject<List<Town>>(item.First.ToString());
-                        foreach (Town c in towns)
-                        {
-                            this.comboBox_town.Items.Add(c.Name.C);
-                        }
-                        break;
-                    }
-                }
-            }
-            else
-            {
-                nation_scenic = JsonConvert.DeserializeObject<List<NatScenic>>(j);
-                foreach (NatScenic n in nation_scenic)
-                {
-                    if (n.CID == id)
-                    {
-                        this.comboBox_town.Items.Add(n.Name.C);
-                    }
-                }
+                this.comboBox_town.Items.Add(l);
             }
 
-            if (this.comboBox_town.Items.Count != 0)
-                this.comboBox_town.SelectedIndex = 0;
+            this.comboBox_town.SelectedIndex = 0;
         }
 
         private void comboBox_town_SelectedIndexChanged(object sender, EventArgs e)
         {
-            Type t = (Type)this.comboBox_type.SelectedItem;
-            string link = "https://www.cwb.gov.tw/Data/js/GT/TableData_GT_";
-            string tid = "";
+            WeatherSearchDLL.WeatherSearchDLL.eInfoType type = (WeatherSearchDLL.WeatherSearchDLL.eInfoType)this.comboBox_type.SelectedIndex;
+            string country_name = this.comboBox_country.SelectedItem.ToString();
+            string location_name = this.comboBox_town.SelectedItem.ToString();
 
-            if (this.comboBox_type.SelectedIndex == 0)
-            {
-                string id = "";
-                foreach (Country c in countries)
-                {
-                    if (c.Name.C == this.comboBox_country.SelectedItem.ToString())
-                    {
-                        id = c.ID;
-                        break;
-                    }
-                }
+            WeatherSearchDLL.WeatherSearchDLL.Info info = weather_search.GetWeatherInfo(type, country_name, location_name);
+            this.label_time.Text = info.Time;
 
-                foreach (Town c in towns)
-                {
-                    if (c.Name.C == ((System.Windows.Forms.ComboBox)sender).SelectedItem.ToString())
-                    {
-                        tid = c.ID;
-                        break;
-                    }
-                }
-                link = link + "T_" + id + ".js";
-            }
-            else
-            {
-                foreach (NatScenic c in nation_scenic)
-                {
-                    if (c.Name.C == ((System.Windows.Forms.ComboBox)sender).SelectedItem.ToString())
-                    {
-                        tid = c.PID;
-                        break;
-                    }
-                }
-                link = link + "R_" + t.link + ".js";
-            }
-            string header1 = "var GT_Time =";
-            string header2 = "var GT =";
-            string response = GetResponseString(link);
-            {
-                int index1 = response.IndexOf(header1) + header1.Length;
-                int index2 = response.IndexOf(header2);
-
-                string j = response.Substring(index1, index2 - index1 - 2);
-                Time stuff = JsonConvert.DeserializeObject<Time>(j);
-                this.label_time.Text = stuff.C.Replace("<br>", "\n");
-            }
-            {
-                int index1 = response.IndexOf(header2) + header2.Length;
-                string j = response.Substring(index1, response.Length - index1 - 1);
-                dynamic stuff = JsonConvert.DeserializeObject(j);
-
-                foreach (dynamic item in stuff)
-                {
-                    string a = item.Path.ToString();
-                    if (a == tid)
-                    {
-                        string temp = item.First.ToString();
-                        Info infos = JsonConvert.DeserializeObject<Info>(temp);
-                        this.label_temperature.Text = infos.C_T;
-                        this.label_body_temperature.Text = infos.C_AT;
-                        this.label_humidity.Text = infos.RH;
-                        //this.label_temperature.Text = infos.F_AT;
-                        this.label_precipitation.Text = infos.Rain;
-                        //this.label_temperature.Text = infos.Rain;
-                        this.label_sunrise.Text = infos.Sunrise;
-                        this.label_sunset.Text = infos.Sunset;
-                        break;
-                    }
-                }
-            }
+            this.label_temperature.Text = info.C_T;
+            this.label_body_temperature.Text = info.C_AT;
+            this.label_humidity.Text = info.RH;
+            this.label_precipitation.Text = info.Rain;
+            this.label_sunrise.Text = info.Sunrise;
+            this.label_sunset.Text = info.Sunset;
         }
     }
 }

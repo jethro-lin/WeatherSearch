@@ -13,6 +13,19 @@ namespace WeatherSearchDLL
 {
     public class WeatherSearchDLL
     {
+        public class Info
+        {
+            public string Time;
+            public string C_T;
+            public string C_AT;
+            public string F_T;
+            public string F_AT;
+            public string RH;
+            public string Rain;
+            public string Sunrise;
+            public string Sunset;
+        }
+
         private List<Country> countries = new List<Country>();
         private List<NatScenic> nation_scenic = new List<NatScenic>();
         private List<Town> towns = new List<Town>();
@@ -116,12 +129,22 @@ namespace WeatherSearchDLL
             return res;
         }
 
+        public string GetCountryByEnglish(string english_name)
+        {
+            foreach (Country c in countries)
+            {
+                if (c.Name.E.Contains(english_name))
+                    return c.Name.C;
+            }
+            return "";
+        }
+
         public string[] GetCountry(eInfoType type)
         {
             List<string> res = new List<string>();
-            
+
             string j = GetJsonString("https://www.cwb.gov.tw/Data/js/info/Info_" + InfoTypeLink[(int)type] + ".js");
-            
+
             if (type == eInfoType.Town)
             {
                 dynamic stuff = ParseJsonTo(j);
