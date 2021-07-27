@@ -38,6 +38,7 @@
             this.label_precipitation = new System.Windows.Forms.Label();
             this.label_sunrise = new System.Windows.Forms.Label();
             this.label_sunset = new System.Windows.Forms.Label();
+            this.comboBox_type = new System.Windows.Forms.ComboBox();
             this.tableLayoutPanel1.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -46,9 +47,9 @@
             this.comboBox_country.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.comboBox_country.Font = new System.Drawing.Font("新細明體", 18F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(136)));
             this.comboBox_country.FormattingEnabled = true;
-            this.comboBox_country.Location = new System.Drawing.Point(46, 12);
+            this.comboBox_country.Location = new System.Drawing.Point(46, 63);
             this.comboBox_country.Name = "comboBox_country";
-            this.comboBox_country.Size = new System.Drawing.Size(212, 32);
+            this.comboBox_country.Size = new System.Drawing.Size(449, 32);
             this.comboBox_country.TabIndex = 0;
             this.comboBox_country.SelectedIndexChanged += new System.EventHandler(this.comboBox_country_SelectedIndexChanged);
             // 
@@ -57,9 +58,9 @@
             this.comboBox_town.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.comboBox_town.Font = new System.Drawing.Font("新細明體", 18F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(136)));
             this.comboBox_town.FormattingEnabled = true;
-            this.comboBox_town.Location = new System.Drawing.Point(264, 12);
+            this.comboBox_town.Location = new System.Drawing.Point(46, 101);
             this.comboBox_town.Name = "comboBox_town";
-            this.comboBox_town.Size = new System.Drawing.Size(218, 32);
+            this.comboBox_town.Size = new System.Drawing.Size(449, 32);
             this.comboBox_town.TabIndex = 1;
             this.comboBox_town.SelectedIndexChanged += new System.EventHandler(this.comboBox_town_SelectedIndexChanged);
             // 
@@ -78,7 +79,7 @@
             this.tableLayoutPanel1.Controls.Add(this.label_sunrise, 2, 1);
             this.tableLayoutPanel1.Controls.Add(this.label_sunset, 3, 1);
             this.tableLayoutPanel1.Font = new System.Drawing.Font("新細明體", 18F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(136)));
-            this.tableLayoutPanel1.Location = new System.Drawing.Point(46, 70);
+            this.tableLayoutPanel1.Location = new System.Drawing.Point(46, 168);
             this.tableLayoutPanel1.Name = "tableLayoutPanel1";
             this.tableLayoutPanel1.RowCount = 2;
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
@@ -149,14 +150,26 @@
             this.label_sunset.Size = new System.Drawing.Size(0, 24);
             this.label_sunset.TabIndex = 6;
             // 
+            // comboBox_type
+            // 
+            this.comboBox_type.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.comboBox_type.Font = new System.Drawing.Font("新細明體", 18F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(136)));
+            this.comboBox_type.FormattingEnabled = true;
+            this.comboBox_type.Location = new System.Drawing.Point(46, 25);
+            this.comboBox_type.Name = "comboBox_type";
+            this.comboBox_type.Size = new System.Drawing.Size(449, 32);
+            this.comboBox_type.TabIndex = 10;
+            this.comboBox_type.SelectedIndexChanged += new System.EventHandler(this.comboBox_type_SelectedIndexChanged);
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(540, 303);
-            this.Controls.Add(this.tableLayoutPanel1);
-            this.Controls.Add(this.comboBox_town);
+            this.ClientSize = new System.Drawing.Size(544, 473);
             this.Controls.Add(this.comboBox_country);
+            this.Controls.Add(this.comboBox_town);
+            this.Controls.Add(this.comboBox_type);
+            this.Controls.Add(this.tableLayoutPanel1);
             this.Name = "Form1";
             this.Text = "即時天氣查詢";
             this.tableLayoutPanel1.ResumeLayout(false);
@@ -177,6 +190,7 @@
         private System.Windows.Forms.Label label_precipitation;
         private System.Windows.Forms.Label label_sunrise;
         private System.Windows.Forms.Label label_sunset;
+        private System.Windows.Forms.ComboBox comboBox_type;
     }
 }
 
