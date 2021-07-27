@@ -1,6 +1,6 @@
 ﻿namespace WindowsFormsApp1
 {
-    partial class Form1
+    partial class WeatherSearch
     {
         /// <summary>
         /// 設計工具所需的變數。

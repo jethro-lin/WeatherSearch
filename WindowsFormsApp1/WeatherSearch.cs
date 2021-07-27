@@ -11,15 +11,13 @@ using HtmlAgilityPack;
 using System.IO;
 using System.Net;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 
 namespace WindowsFormsApp1
 {
-    public partial class Form1 : Form
+    public partial class WeatherSearch : Form
     {
         public List<Country> countries;
         public List<NatScenic> nation_scenic;
-        public List<Scenery> sceneries = new List<Scenery>();
         public List<Town> towns;
 
         private string GetIPAddress()
@@ -93,7 +91,7 @@ namespace WindowsFormsApp1
             return id;
         }
 
-        public Form1()
+        public WeatherSearch()
         {
             InitializeComponent();
 
@@ -122,7 +120,8 @@ namespace WindowsFormsApp1
             }
 
             this.comboBox_type.SelectedIndex = 0;
-            /*
+            
+            /// *** 透過當前IP取得當前位置
             string ip = GetIPAddress();
             string country = GetUserCountryByIp(ip);
             foreach (Country c in countries)
@@ -133,9 +132,6 @@ namespace WindowsFormsApp1
                     break;
                 }
             }
-            if (this.comboBox_country.Items.Count > 0 && this.comboBox_country.SelectedIndex == -1)
-                this.comboBox_country.SelectedIndex = 0;
-            */
         }
 
         private void comboBox_type_SelectedIndexChanged(object sender, EventArgs e)
@@ -265,11 +261,11 @@ namespace WindowsFormsApp1
                 }
                 link = link + "R_" + t.link + ".js";
             }
+            string header1 = "var GT_Time =";
+            string header2 = "var GT =";
             string response = GetResponseString(link);
             {
-                string header1 = "var GT_Time =";
                 int index1 = response.IndexOf(header1) + header1.Length;
-                string header2 = "var GT =";
                 int index2 = response.IndexOf(header2);
 
                 string j = response.Substring(index1, index2 - index1 - 2);
@@ -277,9 +273,8 @@ namespace WindowsFormsApp1
                 this.label_time.Text = stuff.C.Replace("<br>", "\n");
             }
             {
-                string header2 = "var GT =";
-                int index2 = response.IndexOf(header2) + header2.Length;
-                string j = response.Substring(index2, response.Length - index2 - 1);
+                int index1 = response.IndexOf(header2) + header2.Length;
+                string j = response.Substring(index1, response.Length - index1 - 1);
                 dynamic stuff = JsonConvert.DeserializeObject(j);
 
                 foreach (dynamic item in stuff)
@@ -301,82 +296,6 @@ namespace WindowsFormsApp1
                     }
                 }
             }
-        }
-    }
-
-    public class Time
-    {
-        public string C;
-        public string E;
-    }
-
-    public class CName
-    {
-        public string C;
-        public string E;
-    }
-
-    public class Country
-    {
-        public string ID;
-        public string Area;
-        public string TID;
-        public CName Name;
-    }
-
-    public class Town
-    {
-        public string ID;
-        public string RID;
-        public string Tide;
-        public CName Name;
-    }
-
-    public class NatScenic
-    {
-        public string PID;
-        public string CID;
-        public string TID;
-        public CName Name;
-    }
-
-    public class Info
-    {
-        public string C_T;
-        public string C_AT;
-        public string F_T;
-        public string F_AT;
-        public string RH;
-        public string Rain;
-        public string Sunrise;
-        public string Sunset;
-    }
-
-    public class Scenery
-    {
-        public string TypeID;
-        public string TypeName;
-
-        public Scenery(string path, string v)
-        {
-            this.TypeID = path;
-            this.TypeName = v;
-        }
-    }
-
-    public class Type
-    {
-        public string C;
-        public string link;
-
-        public Type(string _c, string _link)
-        {
-            this.C = _c;
-            this.link = _link;
-        }
-        public override string ToString()
-        {
-            return C;
         }
     }
 }

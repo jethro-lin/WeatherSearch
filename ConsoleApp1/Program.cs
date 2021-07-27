@@ -9,6 +9,7 @@ using System.IO;
 using System.Threading;
 using System.Net.Http;
 using System.Threading.Tasks;
+using WeatherSearchDLL;
 
 namespace ConsoleApp1
 {
@@ -16,67 +17,71 @@ namespace ConsoleApp1
     {
         static void Main(string[] args)
         {
-            HtmlWeb webClient = new HtmlWeb(); //建立htmlweb
-                                               //處理C# 連線 HTTPS 網站發生驗證失敗導致基礎連接已關閉
-            ServicePointManager.SecurityProtocol = SecurityProtocolType.Ssl3 | SecurityProtocolType.Tls |
-            SecurityProtocolType.Tls11 | SecurityProtocolType.Tls12;
-
-            webClient.PreRequest += request =>
+            do
             {
-                request.CookieContainer = new System.Net.CookieContainer();
-                return true;
-            };
+                WeatherSearchDLL.WeatherSearchDLL w = new WeatherSearchDLL.WeatherSearchDLL();
+                var l = w.GetTypeList();
+                int type_index = 0;
+                int country_index = 0;
+                int location_index = 0;
+                foreach (string s in l)
+                {
+                    Console.Write(type_index++);
+                    Console.Write(". ");
+                    Console.WriteLine(s);
+                }
+                int key_index = 0;
 
-            HtmlAgilityPack.HtmlDocument doc = new HtmlAgilityPack.HtmlDocument { OptionUseIdAttribute = true };
+                WeatherSearchDLL.WeatherSearchDLL.eInfoType type = WeatherSearchDLL.WeatherSearchDLL.eInfoType.Town;
+                string country = "";
+                string location = "";
+                key_index = Convert.ToInt32(Console.ReadLine());
+                type = (WeatherSearchDLL.WeatherSearchDLL.eInfoType)key_index;
 
-            WebClient client = new WebClient();
-            //https://www.cwb.gov.tw/Data/js/info/Info_County.js?v=20200415
+                l = w.GetCountry(type);
+                foreach (string s in l)
+                {
+                    Console.Write(country_index++);
+                    Console.Write(". ");
+                    Console.WriteLine(s);
+                }
 
-            //MemoryStream ms = new MemoryStream(client.DownloadData("https://www.cwb.gov.tw/Data/js/GT/TableData_GT_T_65.js"));//?T=2021071402-4&_=1626248396342
-            //MemoryStream ms = new MemoryStream(client.DownloadData("https://www.cwb.gov.tw/Data/js/fcst/W50_Data.js"));// 取得城市列表
-            MemoryStream ms = new MemoryStream(client.DownloadData("https://www.cwb.gov.tw/Data/js/info/Info_Town.js"));// 取得鄉村列表
-            doc.Load(ms, Encoding.UTF8);
-            
-            Console.WriteLine(doc.Text);
+                key_index = Convert.ToInt32(Console.ReadLine());
+                country = l[key_index];
+                l = w.GetLocation(type, country);
+                foreach (string s in l)
+                {
+                    Console.Write(location_index++);
+                    Console.Write(". ");
+                    Console.WriteLine(s);
+                }
 
-            /// WebBrowser w = new WebBrowser();
-            /// w.DocumentText = doc.Text;
-            /// w.Document.InvokeScript("ChangeTID");
+                key_index = Convert.ToInt32(Console.ReadLine());
+                location = l[key_index];
+                var i = w.GetWeatherInfo(type, country, location);
+                Console.Write("時間:");
+                Console.WriteLine(i.Time);
 
-            doc = webClient.Load("https://www.cwb.gov.tw/Data/js/GT/TableData_GT_T_65.js?T=2021071415-4&_=1626248396342"); //載入網址資料
-            Console.WriteLine(doc.Text);
-            HtmlNode.ElementsFlags.Remove("option");
-            doc.LoadHtml(doc.Text);
+                Console.Write("溫度:");
+                Console.WriteLine(i.C_T);
 
-            foreach (HtmlNode node in doc.DocumentNode.SelectNodes(@"/html/body/div[2]/main/div/div[2]/div[1]/div[1]/form/fieldset/div/div[1]/div[2]/div/div[1]/label/select/option"))
-            {
-                Console.WriteLine("Value=" + node.Attributes["value"].Value);
-                Console.WriteLine("InnerText=" + node.InnerText);
-                Console.WriteLine();
+                Console.Write("體感溫度:");
+                Console.WriteLine(i.C_AT);
+
+                Console.Write("降雨機率:");
+                Console.WriteLine(i.RH);
+
+                Console.Write("時雨量:");
+                Console.WriteLine(i.Rain);
+
+                Console.Write("日出:");
+                Console.WriteLine(i.Sunrise);
+
+                Console.Write("日落:");
+                Console.WriteLine(i.Sunset);
+                Console.WriteLine("按任意鍵繼續，按Esc跳離");
             }
-            //System.Threading.Thread.Sleep(3000);
-            Console.WriteLine(doc.Text);
-            //HtmlNodeCollection mtchrslts = doc.DocumentNode.SelectNodes("/html/body/div[2]/main/div/div[1]/table/tbody/tr/td[1]/span[1]");
-            HtmlNodeCollection mtchrslts = doc.DocumentNode.SelectNodes("/html/body/div[2]/main/div/div[2]/div[1]/div[1]/form/fieldset/div/div[1]/div[2]/div/div[1]/label/select/option[2]");
-            mtchrslts = doc.DocumentNode.SelectNodes("/html/body/div[3]/main/div[1]/div[2]/div[2]/div/div/ol/li[1]/a/span[2]/span[1]/i[1]");
-            var a = doc.ParseExecuting;
-
-
-            /// HttpClient httpClient = new HttpClient();
-            /// 
-            /// string url = "https://www.cwb.gov.tw/V8/C/W/Town/Town.html?TID=6500200";
-            /// HttpResponseMessage responseMessage = await httpClient.GetAsync(url); //發送請求
-            /// 
-            /// //檢查回應的伺服器狀態StatusCode是否是200 OK
-            /// if (responseMessage.StatusCode == System.Net.HttpStatusCode.OK)
-            /// {
-            ///     string responseResult = responseMessage.Content.ReadAsStringAsync().Result;//取得內容
-            /// 
-            ///     Console.WriteLine(responseResult);
-            /// }
-
-
-            int i = 0;
+            while (Console.ReadKey().Key != ConsoleKey.Escape);
         }
     }
 }
