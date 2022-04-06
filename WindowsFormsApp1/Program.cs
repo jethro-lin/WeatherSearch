@@ -20,7 +20,7 @@ namespace WindowsFormsApp1
         {
             AppCenter.Start("ae1ae878-5841-4cce-9685-8dbd44310a76",
                    typeof(Analytics), typeof(Crashes));
-
+            Analytics.TrackEvent("Hello World");
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
             Application.Run(new WeatherSearch());
